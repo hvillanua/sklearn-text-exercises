@@ -29,8 +29,7 @@ if __name__ == "__main__":
     # that is used when n_jobs != 1 in GridSearchCV
 
     # the training data folder must be passed as first argument
-    #movie_reviews_data_folder = sys.argv[1]
-    movie_reviews_data_folder = "C:\\Python27\\Lib\\site-packages\\scikit-learn\\doc\\tutorial\\text_analytics\\data\\movie_reviews\\txt_sentoken"
+    movie_reviews_data_folder = sys.argv[1]
     dataset = load_files(movie_reviews_data_folder, shuffle=False)
     print("n_samples: %d" % len(dataset.data))
 
