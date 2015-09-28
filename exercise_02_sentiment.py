@@ -30,7 +30,7 @@ if __name__ == "__main__":
 
     # the training data folder must be passed as first argument
     #movie_reviews_data_folder = sys.argv[1]
-    movie_reviews_data_folder = "D:\\Git repositories\\sklearn text\\text_analytics\\data\\languages\\short_paragraphs"
+    movie_reviews_data_folder = "C:\\Python27\\Lib\\site-packages\\scikit-learn\\doc\\tutorial\\text_analytics\\data\\movie_reviews\\txt_sentoken"
     dataset = load_files(movie_reviews_data_folder, shuffle=False)
     print("n_samples: %d" % len(dataset.data))
 
@@ -40,16 +40,37 @@ if __name__ == "__main__":
 
     # TASK: Build a vectorizer / classifier pipeline that filters out tokens
     # that are too rare or too frequent
+    vectorizer = TfidfVectorizer(stop_words='english', min_df=0.05)
+    clf = Pipeline([('vect', vectorizer),
+                ('clf', LinearSVC()),
+                ])
 
     # TASK: Build a grid search to find out whether unigrams or bigrams are
     # more useful.
     # Fit the pipeline on the training set using grid search for the parameters
-
+    # This parameter selection is computationally heavy, uncomment/add more parameters at your own risk
+    parameters = {'vect__ngram_range': ((1,1),(1,2)),
+                  'vect__min_df': (5e-2, 1e-2, 3),
+                  'vect__max_df': (9e-1, 95e-2),
+                  #'vect__stop_words': (None, 'english'),
+                  #'clf__C': (1e-2, 1e-3, 5e-3, 1e-4),
+                  #'clf__max_iter': (5e2, 1e3, 5e3, 1e4),
+                  }
+    # If the parameter selection has a lot of combinations, you might want to change n_jobs to a limited amount of cores depending on your computer, -1 will use all of the available cores
+    gs_clf = GridSearchCV(clf, parameters, n_jobs=-1)
+    gs_clf.fit(docs_train, y_train)
+    
     # TASK: print the cross-validated scores for the each parameters set
     # explored by the grid search
+    grid_scores = gs_clf.grid_scores_
+    for parameters, mean_validation_score, _ in grid_scores:
+        print "Parameters:", parameters, " with mean validation score of:", mean_validation_score
+
+    print "Best parameter:", gs_clf.best_params_, "with score of", gs_clf.best_score_
 
     # TASK: Predict the outcome on the testing set and store it in a variable
     # named y_predicted
+    y_predicted = gs_clf.predict(docs_test)
 
     # Print the classification report
     print(metrics.classification_report(y_test, y_predicted,
